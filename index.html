@@ -48,7 +48,7 @@
     <div class="container">
         <div class="header">
             <h1>₿ Bitcoin Retirement Calculator</h1>
-            <h2>Current BTC Price: $<span id="currentBtc">110,000</span></h2>
+            <h2>Current BTC Price: $<span id="currentBtcDisplay">110,000</span></h2>
             <p>Plan Your Bitcoin-Powered Retirement</p>
         </div>
 
@@ -57,7 +57,7 @@
             <h3>💰 Adjust Current BTC Price</h3>
             <div class="input-group">
                 <label>Current BTC Price ($)</label>
-                <input type="number" id="btcPrice" value="110000" onchange="updatePrice()" min="1000" step="1000">
+                <input type="number" id="currentBtcPrice" value="110000" onchange="updateAll()" min="1000" step="1000">
             </div>
             <p><small>Update this to the current market price for accurate calculations</small></p>
         </div>
@@ -67,31 +67,49 @@
             <h3>📊 BTC Performance Assumptions (Your Requirements)</h3>
             <div class="performance-table">
                 <div class="performance-row performance-header">
-                    <div>Period</div>
+                    <div>Period (10-Year Tenures)</div>
                     <div>Inflation</div>
                     <div>BTC Outperformance</div>
                     <div>Total BTC Growth</div>
                 </div>
                 <div class="performance-row">
-                    <div>2025-2035 (10 years)</div>
+                    <div>2025-2035 (1st tenure)</div>
                     <div>3%</div>
                     <div>15%</div>
                     <div>18%</div>
                 </div>
                 <div class="performance-row">
-                    <div>2036-2045 (10 years)</div>
+                    <div>2036-2045 (2nd tenure)</div>
                     <div>3%</div>
                     <div>10%</div>
                     <div>13%</div>
                 </div>
                 <div class="performance-row">
-                    <div>2046-2055 (10 years)</div>
+                    <div>2046-2055 (3rd tenure)</div>
                     <div>3%</div>
                     <div>8%</div>
                     <div>11%</div>
                 </div>
                 <div class="performance-row">
-                    <div>2056-2095 (40 years)</div>
+                    <div>2056-2065 (4th tenure)</div>
+                    <div>3%</div>
+                    <div>6%</div>
+                    <div>9%</div>
+                </div>
+                <div class="performance-row">
+                    <div>2066-2075 (5th tenure)</div>
+                    <div>3%</div>
+                    <div>6%</div>
+                    <div>9%</div>
+                </div>
+                <div class="performance-row">
+                    <div>2076-2085 (6th tenure)</div>
+                    <div>3%</div>
+                    <div>6%</div>
+                    <div>9%</div>
+                </div>
+                <div class="performance-row">
+                    <div>2086-2095 (7th tenure)</div>
                     <div>3%</div>
                     <div>6%</div>
                     <div>9%</div>
@@ -178,18 +196,12 @@
         <div class="result highlight">
             🎯 Annual Investment: $<span id="annualInvestment">4,800</span>
         </div>
-
-        <div class="section" style="text-align: center; background: #34495e; color: white;">
-            <h4>🌟 Built for Bitcoin HODLers</h4>
-            <p>Assumptions based on institutional adoption reducing BTC volatility over time</p>
-            <p><strong>Your calculator is live at:</strong> https://nik1523.github.io/Rretirement-calculator</p>
-        </div>
     </div>
 
     <script>
-        function updatePrice() {
-            const currentBTC = parseFloat(document.getElementById('btcPrice').value) || 110000;
-            document.getElementById('currentBtc').textContent = currentBTC.toLocaleString();
+        function updateAll() {
+            const currentBTC = parseFloat(document.getElementById('currentBtcPrice').value) || 110000;
+            document.getElementById('currentBtcDisplay').textContent = currentBTC.toLocaleString();
             updateProjections();
             calculate();
         }
@@ -203,21 +215,23 @@
             const yearsLeft = Math.max(0, retireAge - age);
             document.getElementById('yearsLeft').textContent = yearsLeft;
             
-            // Calculate BTC price at retirement using current price and growth periods
-            const currentBTC = parseFloat(document.getElementById('btcPrice').value) || 110000;
+            // Calculate BTC price at retirement using 10-year tenures
+            const currentBTC = parseFloat(document.getElementById('currentBtcPrice').value) || 110000;
             let btcPrice = currentBTC;
-            let year = 2025;
             
-            // Apply growth rates by period
-            while (year < 2025 + yearsLeft) {
+            for (let year = 0; year < yearsLeft; year++) {
                 let rate;
-                if (year >= 2025 && year < 2035) rate = 0.18;
-                else if (year >= 2035 && year < 2045) rate = 0.13;
-                else if (year >= 2045 && year < 2055) rate = 0.11;
-                else rate = 0.09;
+                const currentYear = 2025 + year;
+                
+                if (currentYear >= 2025 && currentYear < 2035) rate = 0.18;      // 1st tenure
+                else if (currentYear >= 2035 && currentYear < 2045) rate = 0.13; // 2nd tenure
+                else if (currentYear >= 2045 && currentYear < 2055) rate = 0.11; // 3rd tenure
+                else if (currentYear >= 2055 && currentYear < 2065) rate = 0.09; // 4th tenure
+                else if (currentYear >= 2065 && currentYear < 2075) rate = 0.09; // 5th tenure
+                else if (currentYear >= 2075 && currentYear < 2085) rate = 0.09; // 6th tenure
+                else rate = 0.09; // 7th tenure (2085-2095)
                 
                 btcPrice *= (1 + rate);
-                year++;
             }
             
             document.getElementById('btcAtRetirement').textContent = Math.round(btcPrice).toLocaleString();
@@ -235,7 +249,7 @@
             document.getElementById('btcNeeded').textContent = btcNeeded.toFixed(3);
             
             // Investment calculations
-            const avgReturn = 0.15; // Average 15% return
+            const avgReturn = 0.15;
             const presentValue = totalNeeded / Math.pow(1 + avgReturn, yearsLeft);
             const annualInvestment = presentValue / yearsLeft;
             const monthlyInvestment = annualInvestment / 12;
@@ -246,9 +260,8 @@
             document.getElementById('annualInvestment').textContent = Math.round(annualInvestment).toLocaleString();
         }
         
-        // Update BTC projections based on current price
         function updateProjections() {
-            const currentBTC = parseFloat(document.getElementById('btcPrice').value) || 110000;
+            const currentBTC = parseFloat(document.getElementById('currentBtcPrice').value) || 110000;
             
             // 10 years: 18% for 10 years
             const btc10 = currentBTC * Math.pow(1.18, 10);
@@ -264,8 +277,7 @@
         }
         
         // Initialize
-        updateProjections();
-        calculate();
+        updateAll();
     </script>
 </body>
 </html>
