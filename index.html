@@ -12,6 +12,7 @@
         .performance { background: linear-gradient(135deg, #3498db, #2980b9); color: white; }
         .projections { background: linear-gradient(135deg, #27ae60, #229954); color: white; }
         .calculator { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; }
+        .price-adjust { background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; }
         .result { background: linear-gradient(135deg, #f1c40f, #f39c12); padding: 25px; text-align: center; font-size: 28px; font-weight: bold; border-radius: 12px; margin: 20px 0; color: white; box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
         
         .input-group { margin: 15px 0; }
@@ -49,6 +50,16 @@
             <h1>₿ Bitcoin Retirement Calculator</h1>
             <h2>Current BTC Price: $<span id="currentBtc">110,000</span></h2>
             <p>Plan Your Bitcoin-Powered Retirement</p>
+        </div>
+
+        <!-- Current BTC Price Adjustment -->
+        <div class="section price-adjust">
+            <h3>💰 Adjust Current BTC Price</h3>
+            <div class="input-group">
+                <label>Current BTC Price ($)</label>
+                <input type="number" id="btcPrice" value="110000" onchange="updatePrice()" min="1000" step="1000">
+            </div>
+            <p><small>Update this to the current market price for accurate calculations</small></p>
         </div>
 
         <!-- BTC Performance Assumptions -->
@@ -176,6 +187,13 @@
     </div>
 
     <script>
+        function updatePrice() {
+            const currentBTC = parseFloat(document.getElementById('btcPrice').value) || 110000;
+            document.getElementById('currentBtc').textContent = currentBTC.toLocaleString();
+            updateProjections();
+            calculate();
+        }
+
         function calculate() {
             const age = parseInt(document.getElementById('age').value) || 30;
             const retireAge = parseInt(document.getElementById('retireAge').value) || 60;
@@ -185,8 +203,9 @@
             const yearsLeft = Math.max(0, retireAge - age);
             document.getElementById('yearsLeft').textContent = yearsLeft;
             
-            // Calculate BTC price at retirement using your exact periods
-            let btcPrice = 110000;
+            // Calculate BTC price at retirement using current price and growth periods
+            const currentBTC = parseFloat(document.getElementById('btcPrice').value) || 110000;
+            let btcPrice = currentBTC;
             let year = 2025;
             
             // Apply growth rates by period
@@ -227,9 +246,9 @@
             document.getElementById('annualInvestment').textContent = Math.round(annualInvestment).toLocaleString();
         }
         
-        // Update BTC projections
+        // Update BTC projections based on current price
         function updateProjections() {
-            const currentBTC = 110000;
+            const currentBTC = parseFloat(document.getElementById('btcPrice').value) || 110000;
             
             // 10 years: 18% for 10 years
             const btc10 = currentBTC * Math.pow(1.18, 10);
