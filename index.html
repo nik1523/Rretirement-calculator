@@ -65,7 +65,7 @@
                 <label>Current BTC Price ($)</label>
                 <input type="number" id="currentBtcPrice" value="110000" onchange="updateAll()" min="1000" step="1000">
             </div>
-            <p><small>Update this to the current market price for accurate calculations</small></p>
+            <p><small>Update this to the current market price - all projections will recalculate automatically</small></p>
         </div>
 
         <!-- BTC Performance Assumptions -->
@@ -125,19 +125,22 @@
 
         <!-- BTC Price Projections -->
         <div class="section projections">
-            <h3>🚀 BTC Price Projections</h3>
+            <h3>🚀 BTC Price Projections (Based on Your Current Price & Performance Assumptions)</h3>
             <div class="btc-grid">
                 <div class="btc-item">
                     <h4>10 Years (2035)</h4>
                     <div style="font-size: 24px; font-weight: bold;">$<span id="btc10">575,722</span></div>
+                    <p><small>18% growth for 10 years</small></p>
                 </div>
                 <div class="btc-item">
                     <h4>20 Years (2045)</h4>
                     <div style="font-size: 24px; font-weight: bold;">$<span id="btc20">1,954,327</span></div>
+                    <p><small>18% then 13% growth</small></p>
                 </div>
                 <div class="btc-item">
                     <h4>30 Years (2055)</h4>
                     <div style="font-size: 24px; font-weight: bold;">$<span id="btc30">5,549,157</span></div>
+                    <p><small>18%, 13%, then 11% growth</small></p>
                 </div>
             </div>
         </div>
@@ -247,6 +250,24 @@
             calculate();
         }
 
+        function updateProjections() {
+            const currentBTC = parseFloat(document.getElementById('currentBtcPrice').value) || 110000;
+            
+            // Calculate projections based on your exact performance assumptions
+            
+            // 10 years (2025-2035): 18% growth for 10 years
+            const btc10 = currentBTC * Math.pow(1.18, 10);
+            document.getElementById('btc10').textContent = Math.round(btc10).toLocaleString();
+            
+            // 20 years (2025-2045): 18% for 10 years, then 13% for 10 years
+            const btc20 = btc10 * Math.pow(1.13, 10);
+            document.getElementById('btc20').textContent = Math.round(btc20).toLocaleString();
+            
+            // 30 years (2025-2055): previous + 11% for 10 years
+            const btc30 = btc20 * Math.pow(1.11, 10);
+            document.getElementById('btc30').textContent = Math.round(btc30).toLocaleString();
+        }
+
         function calculate() {
             const age = parseInt(document.getElementById('age').value) || 30;
             const retireAge = parseInt(document.getElementById('retireAge').value) || 60;
@@ -256,21 +277,22 @@
             const yearsLeft = Math.max(0, retireAge - age);
             document.getElementById('yearsLeft').textContent = yearsLeft;
             
-            // Calculate BTC price at retirement using 10-year tenures
+            // Calculate BTC price at retirement using your exact performance assumptions
             const currentBTC = parseFloat(document.getElementById('currentBtcPrice').value) || 110000;
             let btcPrice = currentBTC;
             
+            // Apply growth rates by your exact 10-year tenures
             for (let year = 0; year < yearsLeft; year++) {
                 let rate;
                 const currentYear = 2025 + year;
                 
-                if (currentYear >= 2025 && currentYear < 2035) rate = 0.18;
-                else if (currentYear >= 2035 && currentYear < 2045) rate = 0.13;
-                else if (currentYear >= 2045 && currentYear < 2055) rate = 0.11;
-                else if (currentYear >= 2055 && currentYear < 2065) rate = 0.09;
-                else if (currentYear >= 2065 && currentYear < 2075) rate = 0.09;
-                else if (currentYear >= 2075 && currentYear < 2085) rate = 0.09;
-                else rate = 0.09;
+                if (currentYear >= 2025 && currentYear < 2035) rate = 0.18;      // 1st tenure: 18%
+                else if (currentYear >= 2035 && currentYear < 2045) rate = 0.13; // 2nd tenure: 13%
+                else if (currentYear >= 2045 && currentYear < 2055) rate = 0.11; // 3rd tenure: 11%
+                else if (currentYear >= 2055 && currentYear < 2065) rate = 0.09; // 4th tenure: 9%
+                else if (currentYear >= 2065 && currentYear < 2075) rate = 0.09; // 5th tenure: 9%
+                else if (currentYear >= 2075 && currentYear < 2085) rate = 0.09; // 6th tenure: 9%
+                else rate = 0.09; // 7th tenure: 9%
                 
                 btcPrice *= (1 + rate);
             }
@@ -314,28 +336,12 @@
             document.getElementById('annualIncome8').textContent = Math.round(annualIncome8).toLocaleString();
             
             // Calculate how long wealth lasts at 8% withdrawal (assuming 6% growth)
-            const netWithdrawal = 0.08 - 0.06; // 8% withdrawal - 6% growth = 2% net depletion
+            const netWithdrawal = 0.08 - 0.06;
             const yearsLasting = Math.round(1 / netWithdrawal);
             document.getElementById('aggressive').textContent = yearsLasting + " years";
             
             // Update wealth duration summary
             document.getElementById('wealthDuration').textContent = `Forever at 4% | ${yearsLasting} years at 8%`;
-        }
-        
-        function updateProjections() {
-            const currentBTC = parseFloat(document.getElementById('currentBtcPrice').value) || 110000;
-            
-            // 10 years: 18% for 10 years
-            const btc10 = currentBTC * Math.pow(1.18, 10);
-            document.getElementById('btc10').textContent = Math.round(btc10).toLocaleString();
-            
-            // 20 years: 18% for 10 years, then 13% for 10 years
-            const btc20 = btc10 * Math.pow(1.13, 10);
-            document.getElementById('btc20').textContent = Math.round(btc20).toLocaleString();
-            
-            // 30 years: previous + 11% for 10 years
-            const btc30 = btc20 * Math.pow(1.11, 10);
-            document.getElementById('btc30').textContent = Math.round(btc30).toLocaleString();
         }
         
         // Initialize
