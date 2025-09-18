@@ -13,6 +13,7 @@
         .projections { background: linear-gradient(135deg, #27ae60, #229954); color: white; }
         .calculator { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; }
         .price-adjust { background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; }
+        .sustainability { background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; }
         .result { background: linear-gradient(135deg, #f1c40f, #f39c12); padding: 25px; text-align: center; font-size: 28px; font-weight: bold; border-radius: 12px; margin: 20px 0; color: white; box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
         
         .input-group { margin: 15px 0; }
@@ -31,17 +32,22 @@
         .calc-label { font-weight: bold; font-size: 16px; }
         .calc-value { font-size: 20px; font-weight: bold; }
         
+        .sustainability-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
+        .sustainability-item { padding: 15px; background: rgba(255,255,255,0.2); border-radius: 8px; text-align: center; }
+        
         @media (max-width: 768px) {
             body { padding: 5px; }
             .header h1 { font-size: 24px; }
             .result { font-size: 22px; padding: 20px; }
             .btc-grid { grid-template-columns: 1fr; gap: 10px; }
+            .sustainability-grid { grid-template-columns: 1fr; gap: 10px; }
             .performance-row { grid-template-columns: 1fr; gap: 5px; text-align: left; }
             .calc-row { flex-direction: column; text-align: center; gap: 5px; }
         }
         
         .highlight { background: linear-gradient(135deg, #e74c3c, #c0392b); }
         .monthly-result { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+        .wealth-result { background: linear-gradient(135deg, #16a085, #1abc9c); }
     </style>
 </head>
 <body>
@@ -184,6 +190,37 @@
             </div>
         </div>
 
+        <!-- Wealth Sustainability -->
+        <div class="section sustainability">
+            <h3>⏳ Wealth Sustainability Analysis</h3>
+            <div class="sustainability-grid">
+                <div class="sustainability-item">
+                    <h4>Conservative Withdrawal (4%)</h4>
+                    <div style="font-size: 20px; font-weight: bold;"><span id="conservative">Forever</span></div>
+                    <p><small>Your wealth will last indefinitely</small></p>
+                </div>
+                <div class="sustainability-item">
+                    <h4>Aggressive Withdrawal (8%)</h4>
+                    <div style="font-size: 20px; font-weight: bold;"><span id="aggressive">25 years</span></div>
+                    <p><small>Higher spending, limited duration</small></p>
+                </div>
+            </div>
+            <div class="calc-results">
+                <div class="calc-row">
+                    <div class="calc-label">Total Wealth Generated:</div>
+                    <div class="calc-value">$<span id="totalWealth">2,222,827</span></div>
+                </div>
+                <div class="calc-row">
+                    <div class="calc-label">Annual Income (4% withdrawal):</div>
+                    <div class="calc-value">$<span id="annualIncome4">88,913</span></div>
+                </div>
+                <div class="calc-row">
+                    <div class="calc-label">Annual Income (8% withdrawal):</div>
+                    <div class="calc-value">$<span id="annualIncome8">177,826</span></div>
+                </div>
+            </div>
+        </div>
+
         <!-- Results -->
         <div class="result">
             💰 Weekly Investment: $<span id="weeklyInvestment">92</span>
@@ -195,6 +232,10 @@
 
         <div class="result highlight">
             🎯 Annual Investment: $<span id="annualInvestment">4,800</span>
+        </div>
+
+        <div class="result wealth-result">
+            🏆 Wealth Duration: <span id="wealthDuration">Forever at 4% withdrawal</span>
         </div>
     </div>
 
@@ -223,13 +264,13 @@
                 let rate;
                 const currentYear = 2025 + year;
                 
-                if (currentYear >= 2025 && currentYear < 2035) rate = 0.18;      // 1st tenure
-                else if (currentYear >= 2035 && currentYear < 2045) rate = 0.13; // 2nd tenure
-                else if (currentYear >= 2045 && currentYear < 2055) rate = 0.11; // 3rd tenure
-                else if (currentYear >= 2055 && currentYear < 2065) rate = 0.09; // 4th tenure
-                else if (currentYear >= 2065 && currentYear < 2075) rate = 0.09; // 5th tenure
-                else if (currentYear >= 2075 && currentYear < 2085) rate = 0.09; // 6th tenure
-                else rate = 0.09; // 7th tenure (2085-2095)
+                if (currentYear >= 2025 && currentYear < 2035) rate = 0.18;
+                else if (currentYear >= 2035 && currentYear < 2045) rate = 0.13;
+                else if (currentYear >= 2045 && currentYear < 2055) rate = 0.11;
+                else if (currentYear >= 2055 && currentYear < 2065) rate = 0.09;
+                else if (currentYear >= 2065 && currentYear < 2075) rate = 0.09;
+                else if (currentYear >= 2075 && currentYear < 2085) rate = 0.09;
+                else rate = 0.09;
                 
                 btcPrice *= (1 + rate);
             }
@@ -258,6 +299,27 @@
             document.getElementById('weeklyInvestment').textContent = Math.round(weeklyInvestment);
             document.getElementById('monthlyInvestment').textContent = Math.round(monthlyInvestment);
             document.getElementById('annualInvestment').textContent = Math.round(annualInvestment).toLocaleString();
+            
+            // Wealth Sustainability Calculations
+            const totalWealth = totalNeeded;
+            document.getElementById('totalWealth').textContent = Math.round(totalWealth).toLocaleString();
+            
+            // 4% withdrawal rule (conservative)
+            const annualIncome4 = totalWealth * 0.04;
+            document.getElementById('annualIncome4').textContent = Math.round(annualIncome4).toLocaleString();
+            document.getElementById('conservative').textContent = "Forever";
+            
+            // 8% withdrawal (aggressive)
+            const annualIncome8 = totalWealth * 0.08;
+            document.getElementById('annualIncome8').textContent = Math.round(annualIncome8).toLocaleString();
+            
+            // Calculate how long wealth lasts at 8% withdrawal (assuming 6% growth)
+            const netWithdrawal = 0.08 - 0.06; // 8% withdrawal - 6% growth = 2% net depletion
+            const yearsLasting = Math.round(1 / netWithdrawal);
+            document.getElementById('aggressive').textContent = yearsLasting + " years";
+            
+            // Update wealth duration summary
+            document.getElementById('wealthDuration').textContent = `Forever at 4% | ${yearsLasting} years at 8%`;
         }
         
         function updateProjections() {
