@@ -1,115 +1,201 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Bitcoin Retirement Calculator</title>
+    <title>₿ Bitcoin Retirement Calculator</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body { font-family: Arial; max-width: 900px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
-        .header { background: #f39c12; padding: 15px; text-align: center; color: white; border-radius: 8px; }
-        .assumptions { background: #3498db; color: white; padding: 15px; margin: 10px 0; border-radius: 8px; }
-        .projections { background: #27ae60; color: white; padding: 15px; margin: 10px 0; border-radius: 8px; }
-        .calculator { background: #2ecc71; padding: 20px; margin: 10px 0; border-radius: 8px; }
-        .result { background: #f1c40f; padding: 15px; text-align: center; font-size: 20px; font-weight: bold; border-radius: 8px; margin: 10px 0; }
-        input { padding: 8px; margin: 5px; width: 120px; border: none; border-radius: 4px; }
-        table { width: 100%; border-collapse: collapse; }
-        td, th { padding: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.3); }
-        .input-row { background: rgba(255,255,255,0.2); }
-        .footer { text-align: center; margin: 20px 0; color: #666; }
+        * { box-sizing: border-box; }
+        body { font-family: Arial; max-width: 100%; margin: 0; padding: 10px; background: #f5f5f5; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .header { background: #f39c12; padding: 15px; text-align: center; color: white; border-radius: 8px; margin-bottom: 10px; }
+        .section { background: white; padding: 15px; margin: 10px 0; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .blue { background: #3498db; color: white; }
+        .green { background: #27ae60; color: white; }
+        .calculator { background: #2ecc71; color: white; }
+        .result { background: #f1c40f; padding: 20px; text-align: center; font-size: 24px; font-weight: bold; border-radius: 8px; margin: 15px 0; }
+        
+        /* Mobile-first inputs */
+        .input-group { margin: 10px 0; }
+        .input-group label { display: block; font-weight: bold; margin-bottom: 5px; }
+        .input-group input { width: 100%; padding: 12px; font-size: 16px; border: none; border-radius: 6px; background: rgba(255,255,255,0.9); }
+        
+        /* Responsive table */
+        .calc-table { width: 100%; }
+        .calc-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.2); }
+        .calc-label { flex: 1; font-weight: bold; }
+        .calc-value { flex: 1; text-align: right; font-size: 18px; }
+        
+        /* BTC projections grid */
+        .btc-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; text-align: center; }
+        .btc-item { padding: 15px; background: rgba(255,255,255,0.2); border-radius: 6px; }
+        
+        /* Mobile optimizations */
         @media (max-width: 600px) {
-            body { padding: 10px; }
-            input { width: 80px; }
-            td, th { padding: 5px; font-size: 12px; }
+            body { padding: 5px; }
+            .header h1 { font-size: 20px; margin: 5px 0; }
+            .result { font-size: 20px; padding: 15px; }
+            .btc-grid { grid-template-columns: 1fr; gap: 5px; }
+            .calc-row { flex-direction: column; text-align: center; }
+            .calc-label, .calc-value { flex: none; margin: 2px 0; }
         }
+        
+        .custom-section { background: #9b59b6; color: white; }
+        .toggle-btn { background: #e74c3c; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; margin: 10px 0; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>₿ Bitcoin Retirement Calculator</h1>
-        <h3>Current BTC Price: $<span id="btcPrice">110,000</span></h3>
-    </div>
+    <div class="container">
+        <div class="header">
+            <h1>₿ Bitcoin Retirement Calculator</h1>
+            <h3>Current BTC: $<span id="btcPrice">110,000</span></h3>
+        </div>
 
-    <div class="assumptions">
-        <h3>📊 Inflation and Growth Assumptions</h3>
-        <table>
-            <tr><th></th><th>2025-35</th><th>2036-45</th><th>2046-55</th><th>2056-65</th><th>2066-75</th><th>2076-85</th><th>2086-95</th></tr>
-            <tr><td>Average Inflation</td><td>3%</td><td>3%</td><td>3%</td><td>3%</td><td>3%</td><td>3%</td><td>3%</td></tr>
-            <tr><td>BTC Outperformance</td><td>15%</td><td>10%</td><td>8%</td><td>7%</td><td>6%</td><td>6%</td><td>6%</td></tr>
-            <tr><td>Nominal Growth</td><td>18%</td><td>13%</td><td>11%</td><td>10%</td><td>9%</td><td>9%</td><td>9%</td></tr>
-        </table>
-    </div>
+        <!-- Custom Requirements Section -->
+        <div class="section custom-section">
+            <h3>🎯 Your Custom Requirements</h3>
+            <div class="input-group">
+                <label>Current BTC Price ($)</label>
+                <input type="number" id="customBtcPrice" value="110000" onchange="updateCustom()">
+            </div>
+            <div class="input-group">
+                <label>Expected BTC Annual Growth (%)</label>
+                <input type="number" id="customGrowth" value="15" step="0.1" onchange="updateCustom()">
+            </div>
+            <div class="input-group">
+                <label>Inflation Rate (%)</label>
+                <input type="number" id="inflationRate" value="3" step="0.1" onchange="updateCustom()">
+            </div>
+        </div>
 
-    <div class="projections">
-        <h3>🚀 BTC Price Projections</h3>
-        <table>
-            <tr><td><strong>10 Years</strong></td><td><strong>20 Years</strong></td><td><strong>30 Years</strong></td></tr>
-            <tr><td>$<span id="btc10">575,722</span></td><td>$<span id="btc20">1,954,327</span></td><td>$<span id="btc30">5,549,157</span></td></tr>
-        </table>
-    </div>
+        <!-- BTC Projections -->
+        <div class="section green">
+            <h3>🚀 BTC Price Projections</h3>
+            <div class="btc-grid">
+                <div class="btc-item">
+                    <div><strong>10 Years</strong></div>
+                    <div>$<span id="btc10">575,722</span></div>
+                </div>
+                <div class="btc-item">
+                    <div><strong>20 Years</strong></div>
+                    <div>$<span id="btc20">1,954,327</span></div>
+                </div>
+                <div class="btc-item">
+                    <div><strong>30 Years</strong></div>
+                    <div>$<span id="btc30">5,549,157</span></div>
+                </div>
+            </div>
+        </div>
 
-    <div class="calculator">
-        <h3>🎯 Retirement Calculator</h3>
-        <table>
-            <tr class="input-row"><td><strong>Your age Today</strong></td><td><input type="number" id="age" value="30" onchange="calculate()"></td></tr>
-            <tr class="input-row"><td><strong>Retirement Age</strong></td><td><input type="number" id="retireAge" value="60" onchange="calculate()"></td></tr>
-            <tr><td>Years left to Retire</td><td><span id="yearsLeft">30</span></td></tr>
-            <tr class="input-row"><td><strong>Years spending in Retirement</strong></td><td><input type="number" id="retireYears" value="40" onchange="calculate()"></td></tr>
-            <tr class="input-row"><td><strong>Your Annual Expenses</strong></td><td>$<input type="number" id="expenses" value="60000" onchange="calculate()"></td></tr>
-            <tr><td>Annual Expenses at Retirement (inflated)</td><td>$<span id="inflatedExpenses">145,636</span></td></tr>
-            <tr><td>Total Retirement needed</td><td>$<span id="totalNeeded">2,222,827</span></td></tr>
-            <tr><td>Total BTC Needed at Retirement</td><td><span id="btcNeeded">0.401</span> ₿</td></tr>
-        </table>
-    </div>
+        <!-- Calculator Inputs -->
+        <div class="section calculator">
+            <h3>📱 Mobile Calculator</h3>
+            
+            <div class="input-group">
+                <label>Your Age Today</label>
+                <input type="number" id="age" value="30" onchange="calculate()">
+            </div>
+            
+            <div class="input-group">
+                <label>Retirement Age</label>
+                <input type="number" id="retireAge" value="60" onchange="calculate()">
+            </div>
+            
+            <div class="input-group">
+                <label>Years in Retirement</label>
+                <input type="number" id="retireYears" value="40" onchange="calculate()">
+            </div>
+            
+            <div class="input-group">
+                <label>Annual Expenses ($)</label>
+                <input type="number" id="expenses" value="60000" onchange="calculate()">
+            </div>
+        </div>
 
-    <div class="result">
-        💰 Weekly Investment Needed: $<span id="weeklyInvestment">92</span>
-    </div>
+        <!-- Results -->
+        <div class="section">
+            <h3>📊 Your Results</h3>
+            <div class="calc-table">
+                <div class="calc-row">
+                    <div class="calc-label">Years to Retirement:</div>
+                    <div class="calc-value"><span id="yearsLeft">30</span></div>
+                </div>
+                <div class="calc-row">
+                    <div class="calc-label">Inflated Annual Expenses:</div>
+                    <div class="calc-value">$<span id="inflatedExpenses">145,636</span></div>
+                </div>
+                <div class="calc-row">
+                    <div class="calc-label">Total Retirement Needed:</div>
+                    <div class="calc-value">$<span id="totalNeeded">2,222,827</span></div>
+                </div>
+                <div class="calc-row">
+                    <div class="calc-label">BTC Needed:</div>
+                    <div class="calc-value"><span id="btcNeeded">0.401</span> ₿</div>
+                </div>
+            </div>
+        </div>
 
-    <div class="footer">
-        <p>📈 Built for Bitcoin HODLers | 🌐 Accessible anywhere with internet</p>
-        <p><small>Assumptions based on institutional adoption reducing BTC volatility over time</small></p>
+        <div class="result">
+            💰 Weekly Investment: $<span id="weeklyInvestment">92</span>
+        </div>
+
+        <div class="result" style="background: #e67e22;">
+            📅 Monthly Investment: $<span id="monthlyInvestment">400</span>
+        </div>
     </div>
 
     <script>
+        function updateCustom() {
+            const currentBTC = parseFloat(document.getElementById('customBtcPrice').value) || 110000;
+            const growth = parseFloat(document.getElementById('customGrowth').value) / 100 || 0.15;
+            
+            document.getElementById('btcPrice').textContent = currentBTC.toLocaleString();
+            
+            // Update projections with custom growth
+            document.getElementById('btc10').textContent = Math.round(currentBTC * Math.pow(1 + growth, 10)).toLocaleString();
+            document.getElementById('btc20').textContent = Math.round(currentBTC * Math.pow(1 + growth, 20)).toLocaleString();
+            document.getElementById('btc30').textContent = Math.round(currentBTC * Math.pow(1 + growth, 30)).toLocaleString();
+            
+            calculate();
+        }
+
         function calculate() {
             const age = parseInt(document.getElementById('age').value) || 30;
             const retireAge = parseInt(document.getElementById('retireAge').value) || 60;
             const retireYears = parseInt(document.getElementById('retireYears').value) || 40;
             const expenses = parseFloat(document.getElementById('expenses').value) || 60000;
+            const inflationRate = parseFloat(document.getElementById('inflationRate').value) / 100 || 0.03;
+            const growth = parseFloat(document.getElementById('customGrowth').value) / 100 || 0.15;
+            const currentBTC = parseFloat(document.getElementById('customBtcPrice').value) || 110000;
             
             const yearsLeft = Math.max(0, retireAge - age);
             document.getElementById('yearsLeft').textContent = yearsLeft;
             
-            // Calculate inflated expenses (3% inflation)
-            const inflatedExpenses = expenses * Math.pow(1.03, yearsLeft);
+            // Calculate with custom inflation
+            const inflatedExpenses = expenses * Math.pow(1 + inflationRate, yearsLeft);
             document.getElementById('inflatedExpenses').textContent = Math.round(inflatedExpenses).toLocaleString();
             
-            // Total retirement needed (with inflation buffer)
+            // Total retirement needed
             const totalNeeded = inflatedExpenses * retireYears * 1.5;
             document.getElementById('totalNeeded').textContent = Math.round(totalNeeded).toLocaleString();
             
-            // BTC price at retirement (based on timeframe)
-            let btcPrice;
-            if (yearsLeft <= 15) btcPrice = 575722;
-            else if (yearsLeft <= 25) btcPrice = 1954327;
-            else btcPrice = 5549157;
+            // BTC price at retirement with custom growth
+            const btcPrice = currentBTC * Math.pow(1 + growth, yearsLeft);
             
             // BTC needed
             const btcNeeded = totalNeeded / btcPrice;
             document.getElementById('btcNeeded').textContent = btcNeeded.toFixed(3);
             
-            // Weekly investment (15% average BTC return)
-            const weeklyInvestment = yearsLeft > 0 ? (totalNeeded / Math.pow(1.15, yearsLeft)) / 52 : 0;
+            // Weekly and monthly investment
+            const weeklyInvestment = yearsLeft > 0 ? (totalNeeded / Math.pow(1 + growth, yearsLeft)) / 52 : 0;
+            const monthlyInvestment = weeklyInvestment * 4.33;
+            
             document.getElementById('weeklyInvestment').textContent = Math.round(weeklyInvestment);
+            document.getElementById('monthlyInvestment').textContent = Math.round(monthlyInvestment);
         }
         
-        // Calculate on page load
+        // Initialize
+        updateCustom();
         calculate();
-        
-        // Update BTC projections
-        const currentBTC = 110000;
-        document.getElementById('btc10').textContent = Math.round(currentBTC * Math.pow(1.18, 10)).toLocaleString();
-        document.getElementById('btc20').textContent = Math.round(currentBTC * Math.pow(1.18, 10) * Math.pow(1.13, 10)).toLocaleString();
-        document.getElementById('btc30').textContent = Math.round(currentBTC * Math.pow(1.18, 10) * Math.pow(1.13, 10) * Math.pow(1.11, 10)).toLocaleString();
     </script>
 </body>
 </html>
